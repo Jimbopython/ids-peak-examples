@@ -16,4 +16,6 @@ find_package(ids_peak_icv 1.3 REQUIRED)
 ids_peak_icv_deploy(${PROJECT_NAME})
 
 target_link_libraries(${PROJECT_NAME} PRIVATE ids_peak_icv)
+
+# add definition to a directory containing all needed files (images, configs, ...) for the sample
 target_compile_definitions(${PROJECT_NAME} PRIVATE DATA_PATH="${CMAKE_CURRENT_LIST_DIR}/data")
