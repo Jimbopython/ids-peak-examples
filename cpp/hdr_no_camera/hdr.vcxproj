@@ -23,7 +23,7 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    
+
   </ItemGroup>
 
   <PropertyGroup Label="Globals">
