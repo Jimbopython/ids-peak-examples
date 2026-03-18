@@ -16,6 +16,9 @@ The HDR output image is a tiff floating point image, which cannot be trivially d
 The LDR output image is a tone mapped integer image:
 ![LDR floating point image](data/output/tone_mapped_ldr_image.png)
 
+As you can see there are some black spots throughout the right side of the image. Those are only visible as _black_ in
+the tone mapped image. This is an effect due to over exposure in the input images.
+
 ## Documentation
 For detailed information about HDR processing, response curves, and tone mapping, have a look at this
 [Guide](https://de.ids-imaging.com/manuals/ids-peak/ids-peak-icv-documentation/2.20/en/guide_hdr.html)
