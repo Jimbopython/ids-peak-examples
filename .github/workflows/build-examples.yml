@@ -196,7 +196,12 @@ jobs:
       - name: CMake - Build C++ examples
         run: cmake --build build-cpp --config Release
 
+      - name: CMake - Run C++ examples that do not need a camera
+        if: matrix.os == 'ubuntu-latest'
+        run: build-cpp/hdr_no_camera/hdr_no_camera
+
       - name: VS - Build C++ example
+        if: matrix.os == 'windows-latest'
         run: |
           $ids_peak="C:\Program Files\IDS\ids_peak\"
           $env:IDS_PEAK_GENERIC_SDK_PATH="$ids_peak\generic_sdk"
