@@ -13,26 +13,34 @@
  * OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include <array>
-#include <chrono>
 #include <iomanip>
 #include <iostream>
 #include <string>
 
 #include <peak_icv/peak_icv.hpp>
 
+// ---------------------------------------------------------------------------------------------------------------------
+// DECLARATIONS
+// ---------------------------------------------------------------------------------------------------------------------
+
 namespace
 {
-std::string GetCurrentDateTime();
+std::vector<uint32_t> GetExposureTimesCalibrationMicroSeconds();
+std::vector<uint32_t> GetExposureTimesProcessMicroSeconds();
 std::string GetCalibrationImageFilePath();
 std::string GetProcessingImageFilePath();
 std::string GetToneMappedLdrImageFilePath();
 std::string GetHdrImageFilePath();
 std::vector<peak::icv::Image> ReadImagesFromDir(
-    const std::string& directoryPath, const std::vector<double>& exposureTimes);
+    const std::string& directoryPath, const std::vector<uint32_t>& exposureTimes);
+void SetImagesExposureMetaData(std::vector<peak::icv::Image>& images, const std::vector<uint32_t>& exposureTimes);
 std::vector<peak::icv::Image> ReadCalibrationImagesFromDir(const std::string& directoryPath);
 std::vector<peak::icv::Image> ReadProcessingImagesFromDir(const std::string& directoryPath);
 } // namespace
+
+// ---------------------------------------------------------------------------------------------------------------------
+// MAIN
+// ---------------------------------------------------------------------------------------------------------------------
 
 int main()
 {
@@ -46,17 +54,23 @@ int main()
         peak::icv::experimental::HDR hdr;
 
         std::cout << "Loading calibration images from " << GetCalibrationImageFilePath() << std::endl;
-        const auto calibrationImages = ReadCalibrationImagesFromDir(GetCalibrationImageFilePath());
+        auto calibrationImages = ReadCalibrationImagesFromDir(GetCalibrationImageFilePath());
+
+        // It is important to set the exposure time of the images to the images metadata
+        SetImagesExposureMetaData(calibrationImages, GetExposureTimesCalibrationMicroSeconds());
 
         std::cout << "Estimate camera response curve" << std::endl;
         hdr.EstimateResponseCurve(calibrationImages);
 
         std::cout << "Loading processing images from " << GetProcessingImageFilePath() << std::endl;
-        const auto processingImages = ReadProcessingImagesFromDir(GetProcessingImageFilePath());
+        auto processingImages = ReadProcessingImagesFromDir(GetProcessingImageFilePath());
+
+        // It is important to set the exposure time of the images to the images metadata
+        SetImagesExposureMetaData(processingImages, GetExposureTimesProcessMicroSeconds());
 
         // It is also possible to skip the Calibrate method, then calibration is done on first call of Process method
         std::cout << "Process HDR image" << std::endl;
-        auto hdrImage = hdr.Process(processingImages);
+        const auto hdrImage = hdr.Process(processingImages);
 
         writer.Write(GetHdrImageFilePath(), hdrImage);
         std::cout << "HDR image saved to " << GetHdrImageFilePath() << std::endl;
@@ -65,7 +79,7 @@ int main()
         peak::icv::experimental::ToneMapping toneMapping;
 
         std::cout << "Tone mapping of HDR image" << std::endl;
-        auto ldrImage = toneMapping.Process(hdrImage);
+        const auto ldrImage = toneMapping.Process(hdrImage);
 
         writer.Write(GetToneMappedLdrImageFilePath(), ldrImage);
         std::cout << "Tone mapped ldr image saved to " << GetToneMappedLdrImageFilePath() << std::endl;
@@ -80,17 +94,21 @@ int main()
     return 0;
 }
 
+// ---------------------------------------------------------------------------------------------------------------------
+// INPUT/OUTPUT UTILITIES
+// ---------------------------------------------------------------------------------------------------------------------
+
 namespace
 {
 
-std::string GetCurrentDateTime()
+std::vector<uint32_t> GetExposureTimesCalibrationMicroSeconds()
 {
-    const auto now = std::chrono::system_clock::now();
-    const auto inTime = std::chrono::system_clock::to_time_t(now);
+    return { 100, 500, 2'000, 3'000, 8'000, 12'000 };
+}
 
-    std::stringstream ss;
-    ss << std::put_time(std::localtime(&inTime), "%Y-%m-%d_%H-%M-%S");
-    return ss.str();
+std::vector<uint32_t> GetExposureTimesProcessMicroSeconds()
+{
+    return { 1'000, 4'000 };
 }
 
 #ifndef DATA_PATH
@@ -109,12 +127,12 @@ std::string GetProcessingImageFilePath()
 
 std::string GetToneMappedLdrImageFilePath()
 {
-    return "tone_mapped_ldr_image_" + GetCurrentDateTime() + ".png";
+    return "tone_mapped_ldr_image.png";
 }
 
 std::string GetHdrImageFilePath()
 {
-    return "hdr_image_" + GetCurrentDateTime() + ".tiff";
+    return "hdr_image.tiff";
 }
 
 std::string ExposureToString(const double exposure)
@@ -135,35 +153,37 @@ std::string ExposureToString(const double exposure)
 }
 
 std::vector<peak::icv::Image> ReadImagesFromDir(
-    const std::string& directoryPath, const std::vector<double>& exposureTimes)
+    const std::string& directoryPath, const std::vector<uint32_t>& exposureTimes)
 {
     std::vector<peak::icv::Image> images;
     images.reserve(exposureTimes.size());
 
     for (double exposureTime : exposureTimes)
     {
-        std::stringstream ss;
-        ss << directoryPath << "/mono_exposure_" << ExposureToString(exposureTime / 1'000) << "_ms.png";
-
-        peak::icv::Image image{ ss.str() };
-
-        peak::common::Metadata metaData;
-        metaData.SetValueByKey<peak::common::MetadataKey::DeviceExposureTime>(exposureTime);
-        image.SetMetadata(metaData);
-
-        images.emplace_back(image);
+        const auto filePath = directoryPath + "/mono_exposure_" + ExposureToString(exposureTime / 1'000) + "_ms.png";
+        images.emplace_back(filePath);
     }
 
     return images;
 }
 
+void SetImagesExposureMetaData(std::vector<peak::icv::Image>& images, const std::vector<uint32_t>& exposureTimes)
+{
+    for (size_t i = 0; i < exposureTimes.size(); ++i)
+    {
+        peak::common::Metadata metaData;
+        metaData.SetValueByKey<peak::common::MetadataKey::DeviceExposureTime>(exposureTimes[i]);
+        images[i].SetMetadata(metaData);
+    }
+}
+
 std::vector<peak::icv::Image> ReadCalibrationImagesFromDir(const std::string& directoryPath)
 {
-    return ReadImagesFromDir(directoryPath, { 100, 500, 2'000, 3'000, 8'000, 12'000 });
+    return ReadImagesFromDir(directoryPath, GetExposureTimesCalibrationMicroSeconds());
 }
 
 std::vector<peak::icv::Image> ReadProcessingImagesFromDir(const std::string& directoryPath)
 {
-    return ReadImagesFromDir(directoryPath, { 1'000, 4'000 });
+    return ReadImagesFromDir(directoryPath, GetExposureTimesProcessMicroSeconds());
 }
 } // namespace
