@@ -13,13 +13,6 @@
  * OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifdef _WIN32
-#    define _CRT_SECURE_NO_WARNINGS
-#    include <windows.h>
-#else
-#    include <unistd.h>
-#endif
-
 #include <array>
 #include <chrono>
 #include <iomanip>
@@ -30,11 +23,7 @@
 
 namespace
 {
-std::string GetDirectoryFromFilePath(const std::string& filePath);
-std::string GetExecutablePath();
-std::string GetCurrentExecutableDir();
 std::string GetCurrentDateTime();
-std::string GetImageFilePath();
 std::string GetCalibrationImageFilePath();
 std::string GetProcessingImageFilePath();
 std::string GetToneMappedLdrImageFilePath();
@@ -93,37 +82,6 @@ int main()
 
 namespace
 {
-std::string GetDirectoryFromFilePath(const std::string& filePath)
-{
-    const auto lastSlashPos = filePath.find_last_of("\\/");
-    return filePath.substr(0, lastSlashPos + 1);
-}
-
-std::string GetExecutablePath()
-{
-    using std::min;
-
-    std::array<char, FILENAME_MAX> buffer{};
-#ifdef _WIN32
-    auto count = GetModuleFileName(NULL, buffer.data(), static_cast<DWORD>(buffer.size()));
-#else
-    auto count = readlink("/proc/self/exe", buffer.data(), buffer.size());
-#endif
-    count = min(count, static_cast<decltype(count)>(buffer.size() - 1));
-
-    auto executablePath = std::string{ buffer.begin(), buffer.begin() + count };
-
-#ifdef _WIN32
-    std::replace(executablePath.begin(), executablePath.end(), '\\', '/');
-#endif
-    return executablePath;
-}
-
-std::string GetCurrentExecutableDir()
-{
-    const auto executablePath = GetExecutablePath();
-    return GetDirectoryFromFilePath(executablePath);
-}
 
 std::string GetCurrentDateTime()
 {
@@ -135,19 +93,14 @@ std::string GetCurrentDateTime()
     return ss.str();
 }
 
-std::string GetImageFilePath()
-{
-    return GetCurrentExecutableDir() + DATA_PATH "hdr";
-}
-
 std::string GetCalibrationImageFilePath()
 {
-    return GetImageFilePath() + "/" + "calibration";
+    return "calibration";
 }
 
 std::string GetProcessingImageFilePath()
 {
-    return GetImageFilePath() + "/" + "processing";
+    return "processing";
 }
 
 std::string GetToneMappedLdrImageFilePath()
