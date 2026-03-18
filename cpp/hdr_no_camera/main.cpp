@@ -93,14 +93,18 @@ std::string GetCurrentDateTime()
     return ss.str();
 }
 
+#ifndef DATA_PATH
+#error "Define DATA_PATH to the examples data folder"
+#endif
+
 std::string GetCalibrationImageFilePath()
 {
-    return "calibration";
+    return DATA_PATH + std::string("/calibration");
 }
 
 std::string GetProcessingImageFilePath()
 {
-    return "processing";
+    return DATA_PATH +  std::string("/processing");
 }
 
 std::string GetToneMappedLdrImageFilePath()
