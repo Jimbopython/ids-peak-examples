@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
-project(nion_point_cloud LANGUAGES C CXX)
+project(hdr_no_camera LANGUAGES C CXX)
 
 add_executable(${PROJECT_NAME} main.cpp)
 
