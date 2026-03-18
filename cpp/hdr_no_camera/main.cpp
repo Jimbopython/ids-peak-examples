@@ -94,7 +94,7 @@ std::string GetCurrentDateTime()
 }
 
 #ifndef DATA_PATH
-#error "Define DATA_PATH to the examples data folder"
+#    error "Define DATA_PATH to the examples data folder"
 #endif
 
 std::string GetCalibrationImageFilePath()
@@ -104,7 +104,7 @@ std::string GetCalibrationImageFilePath()
 
 std::string GetProcessingImageFilePath()
 {
-    return DATA_PATH +  std::string("/processing");
+    return DATA_PATH + std::string("/processing");
 }
 
 std::string GetToneMappedLdrImageFilePath()
