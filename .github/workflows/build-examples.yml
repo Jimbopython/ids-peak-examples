@@ -198,7 +198,7 @@ jobs:
 
       - name: CMake - Run C++ examples that do not need a camera
         if: matrix.os == 'ubuntu-latest'
-        run: build-cpp/hdr_no_camera/hdr_no_camera
+        run: build-cpp/dummy/dummy
 
       - name: VS - Build C++ example
         if: matrix.os == 'windows-latest'
@@ -210,7 +210,7 @@ jobs:
           $env:ids_peak_afl_DIR="$IDS_PEAK_GENERIC_SDK_PATH\afl\lib\x86_64\cmake\"
           $env:ids_peak_ipl_DIR="$IDS_PEAK_GENERIC_SDK_PATH\ipl\lib\x86_64\cmake\"
           $env:ids_peak_common_DIR="$ids_peak\common\lib\cmake\"
-          cd cpp/hdr_no_camera
+          cd cpp/dummy
           MSBuild /p:ClOptions="/W4 /WX" /p:Configuration=Release /p:Platform=x64 | Out-String
         shell: powershell
 
