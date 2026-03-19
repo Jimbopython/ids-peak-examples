@@ -3,6 +3,7 @@ project(cpp)
 
 add_subdirectory(calibration_from_file)
 add_subdirectory(get_first_pixel)
+add_subdirectory(hdr_from_file)
 add_subdirectory(nion_point_cloud)
 add_subdirectory(open_camera)
 add_subdirectory(threshold_from_file)

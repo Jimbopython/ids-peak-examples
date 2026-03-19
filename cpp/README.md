@@ -40,6 +40,7 @@ Open the Visual Studio Project and build it.
 
 * [Calibration From File](calibration_from_file) Shows how to perform a camera calibration using `IDS peak ICV`.
 * [Get First Pixel](get_first_pixel) This example demonstrates how to acquire an image and print the value of the first pixel.
+* [HDR from file](hdr_from_file) Shows how to create an HDR image and apply tone mapping for visual appearance using `IDS peak ICV`.
 * [Nion Point Cloud](nion_point_cloud) Shows how to calculate the depth Map and point cloud using the `IDS Nion` camera and `IDS peak ICV`.
 * [Open Camera](open_camera) This application demonstrates how to use the device manager to open a camera.
 * [Threshold From File](threshold_from_file) Shows how to apply a threshold using `IDS peak ICV`.
