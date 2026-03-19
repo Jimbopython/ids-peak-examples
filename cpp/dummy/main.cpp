@@ -14,5 +14,6 @@ int main()
         std::cout << e.what() << std::endl;
         return 1;
     }
+    std::cout << "Success!\n";
     return 0;
 }

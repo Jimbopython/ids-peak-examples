@@ -197,7 +197,6 @@ jobs:
         run: cmake --build build-cpp --config Release
 
       - name: CMake - Run C++ examples that do not need a camera
-        if: matrix.os == 'ubuntu-latest'
         run: build-cpp/dummy/dummy
 
       - name: VS - Build C++ example
@@ -213,6 +212,10 @@ jobs:
           cd cpp/dummy
           MSBuild /p:ClOptions="/W4 /WX" /p:Configuration=Release /p:Platform=x64 | Out-String
         shell: powershell
+
+      - name: VS - Run C++ examples that do not need a camera
+        if: matrix.os == 'windows-latest'
+        run: cpp/dummy/x64/Release/hdr.exe
 
       #################################################################
       # Cache NuGet packages (C#)
