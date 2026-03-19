@@ -56,6 +56,7 @@ python3 example_name.py
 
 - [Calibration From File](calibration_from_file) Shows how to perform a camera calibration.
 - [Firmware Update](firmware_update) Shows how to programmatically update the firmware of a device.
+- [HDR from file](hdr_from_file) Shows how to create an HDR image and apply tone mapping for visual appearance using `IDS peak ICV`.
 - [Nion Point Cloud](nion_point_cloud) Shows how to calculate the depth Map and point cloud using the `IDS Nion` camera
   and `IDS peak ICV`.
 - [Node Polling](node_polling) Shows how node polling is used to regularly invalidate GenICam nodes that implement the PollingTime feature,
